@@ -1,0 +1,41 @@
+async def register_name(call: CallbackQuery, state: FSMContext):
+    if call.message.text:
+        
+        if len(call.message.text) <= 15: 
+        # Предлагаем пользователю подтвердить введенное имя
+            # await bot.send_message(message.from_user.id, text=f"Вас зовут, {message.text}?", reply_markup=IlKeyBoard())
+            await state.update_data(name = call.message.text)
+            await state.set_state(.ckbName)
+        else:
+            await message.answer("Имя не должно превышать 15 символов. Придумайте другое имя.")
+
+async def ckb_name(call: CallbackQuery, state: FSMContext):
+    await call.message.answer(message.from_user.id, text=f"Вас зовут, {name}?")
+    await call.message.edit_reply_markup(reply_markup=None)
+    await state.set_state(RegisterState.confNameS)
+                
+
+async def confirm_name(message: Message, state: FSMContext):
+    if message.text.lower() == 'да':
+        # Получаем введенное имя из состояния
+        data = await state.get_data()
+        name = data.get('name', 'Unknown')
+
+        # Ваша логика для случая, когда ответ "Да"
+        await message.answer(f"Привет, {name}!")
+        await state.set_state(RegisterState.regSpecS)
+    
+    elif message.text.lower() == 'нет':
+        # Ваша логика для случая, когда ответ "Нет"
+        
+        await message.answer("Попробуйте придумать имя заново.")
+        await state.set_state(RegisterState.regName)
+        # Переходим в состояние ожидания ввода имени
+    
+    else:
+        await message.answer("Пожалуйста, используйте кнопки, для кого разраб старался!")
+
+
+
+#    await bot.send_message(message.from_user.id, text=f"Вас зовут, {message.text}?", reply_markup=IlKeyBoard())
+    
