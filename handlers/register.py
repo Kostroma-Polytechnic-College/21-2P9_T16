@@ -2,16 +2,26 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from state.aStates import RegisterState
 from keyboards.register_kb import IlKeyBoard, SpecKeyBoard
+import emoji
 
 async def register_name(message: Message, state: FSMContext):
+    
     if message.text:
         if len(message.text) <= 15: 
-            await message.answer(text=f"Вас зовут, {message.text}?", reply_markup=IlKeyBoard())
-            await state.update_data(name=message.text)
-            await state.set_state(RegisterState.kbNameState)
+            # Проверяем, содержит ли текст эмодзи
+            if emoji.emoji_count(message.text) > 0:
+                await message.answer(text="Ваше имя не может содержать эмодзи. Придумайте другое имя.")
+                await state.set_state(RegisterState.regNameState)
+            else:
+                await message.answer(text=f"Вас зовут, {message.text}?", reply_markup=IlKeyBoard())
+                await state.update_data(name=message.text)
+                await state.set_state(RegisterState.kbNameState)
         else:
             await message.answer(text="Имя не должно превышать 15 символов. Придумайте другое имя.")
             await state.set_state(RegisterState.regNameState)
+    else: 
+        await message.answer(text="Стикеры и прочее не могут быть вашим именем")
+        await state.set_state(RegisterState.regNameState)
 
 async def select_name(call: CallbackQuery, state: FSMContext):
     await call.answer()
